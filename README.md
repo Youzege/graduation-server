@@ -1,4 +1,4 @@
-# tnest JS
+# nest JS
 
 ## 基础入门
 
@@ -817,3 +817,74 @@ Query Builder Introduction
 
 
 ### 输入数据过滤
+
+
+
+### 分页功能
+
+封装成通用的分页器
+
+```ts
+// pagination/
+import { SelectQueryBuilder } from 'typeorm'
+
+export interface PaginateOptions {
+  limit: number
+  currentPage: number
+  total?: boolean
+}
+
+export interface PaginationResult<T> {
+  first: number
+  last: number
+  limit: number
+  total?: number
+  data: T[]
+}
+
+export async function paginate<T>(
+  qb: SelectQueryBuilder<T>,
+  options: PaginateOptions = {
+    limit: 10,
+    currentPage: 1,
+  },
+): Promise<PaginationResult<T>> {
+  const offset = (options.currentPage - 1) * options.limit
+  const data = await qb.limit(options.limit).offset(offset).getMany()
+
+  return {
+    first: offset + 1,
+    last: offset + data.length,
+    limit: options.limit,
+    total: options.total ? await qb.getCount() : null,
+    data,
+  }
+}
+
+```
+
+service中使用
+
+```ts
+public async getEventsWithAttendeeCountFilteredPaginated(
+    filter: ListEvents,
+    paginateOptions: PaginateOptions,
+  ) {
+    return await paginate(
+      await this.getEventsWithAttendeeCountFiltered(filter),
+      paginateOptions,
+    )
+  }
+```
+
+
+
+### 身份验证
+
+`npm install --save @nestjs/passport passport passport-local`
+
+`npm install @types/passport-local -D`
+
+`npm install @nestjs/jwt passport-jwt`
+
+`npm install @types/passport-jwt -D`

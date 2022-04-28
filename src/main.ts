@@ -7,6 +7,6 @@ async function bootstrap() {
     // logger: ['error', 'warn', 'debug'],
   })
   app.useGlobalPipes(new ValidationPipe())
-  await app.listen(3000)
+  await app.listen(83)
 }
 bootstrap()
